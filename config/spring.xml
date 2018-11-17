@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+	
+	<context:component-scan base-package="com.lsl.ssm">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+	<!--创建数据源信息-->
+	<util:properties location="classpath:druid.properties" local-override="true" id="myProp"/>
+	
+	<!--使用DruidDataSourceFactory工厂的createDataSource方法创建数据库连接-->
+	<bean class="com.alibaba.druid.pool.DruidDataSourceFactory" id="dataSource" factory-method="createDataSource">
+				<constructor-arg ref="myProp"/>
+	</bean>
+	
+	<!--  创建SqlSessionFactory -->
+		<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+				<!--  有一个必须的属性是数据源 -->
+				<property name="dataSource" ref="dataSource"/>
+				<!-- 指定Mybatis全局Configuration对象，或者是配置文件的位置 -->
+				<property name="configLocation" value="classpath:mybatis-config.xml"/>
+				<!-- 批量起别名 -->
+				<property name="typeAliasesPackage" value="com.lsl.ssm.pojo"/>
+				<!-- 批量注册sql -->
+				<property name="mapperLocations" value="classpath:com/lsl/ssm/mapper/*.xml"/>
+		</bean>
+		
+		<!-- 扫描指定的包，为扫到的所有标注了@Repository注解的类，创建代理对象 -->
+		<mybatis-spring:scan base-package="com.lsl.ssm.mapper"/>
+		
+		
+
+</beans>
